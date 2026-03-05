@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园食堂菜品信息</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe5e5 50%, #fff9e5 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .canteen-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .canteen-tab {
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            background: #f5f5f5;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .canteen-tab:hover {
+            background: #e8e8e8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .canteen-tab.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            transform: scale(1.05);
+        }
+
+        @media screen and (max-width: 768px) {
+            .section {
+                padding: 13px;
+            }
+
+            .canteen-tabs {
+                gap: 8px;
+            }
+
+            .canteen-tab {
+                padding: 10px 18px;
+                font-size: 12px;
+                min-height: 40px;
+                min-width: 60px;
+            }
+
+            @media screen and (max-width: 480px) {
+                .canteen-tab {
+                    padding: 8px 14px;
+                    font-size: 10px;
+                    margin: 0 4px;
+                }
+
+                .canteen-tabs {
+                    gap: 4px;
+                }
+            }
+        }
+
+        .hours-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .hour-card {
+            background: linear-gradient(135deg, #fff9e5 0%, #ffe5cc 100%);
+            border: 2px solid #ffcc99;
+            border-radius: 15px;
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .hour-card:nth-child(2) {
+            background: linear-gradient(135deg, #ffe5e5 0%, #ffccdd 100%);
+            border-color: #ffb3cc;
+        }
+
+        .hour-card:nth-child(3) {
+            background: linear-gradient(135deg, #f0e5ff 0%, #e5ccff 100%);
+            border-color: #cc99ff;
+        }
+
+        .hour-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .hour-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .hour-time {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .dishes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .dish-card {
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+            border: 2px solid #e8e8e8;
+            border-radius: 15px;
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dish-card:hover {
+            border-color: #ff6b35;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .dish-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .dish-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .dish-window {
+            display: inline-block;
+            font-size: 13px;
+            color: #666;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .new-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b9d 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sparkle {
+            display: inline-block;
+            animation: sparkle 1.5s infinite;
+        }
+
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .dishes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 15px;
+            }
+
+            .container {
+                padding: 15px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🍜 校园食堂菜品信息</h1>
+        <p>今日美食，尽在掌握</p>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <div class="section-title">选择食堂</div>
+            <div class="canteen-tabs" id="canteenTabs"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">⏰ 营业时间</div>
+            <div class="hours-grid" id="hoursGrid"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">今日菜品</div>
+            <div class="dishes-grid" id="dishesGrid"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>💡 菜品信息仅供参考，以实际供应为准</p>
+    </div>
+
+    <script>
+        var canteens = [
+            {
+                name: '教工一层',
+                hours: {
+                    breakfast: 'NaN - NaN',
+                    lunch: 'NaN - NaN',
+                    dinner: 'NaN - NaN'
+                },
+                dishes: [
+                    { name: ' 手撕包菜 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 清炒豆芽 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 酸辣白菜 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 酸辣土豆丝 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 麻辣豆腐 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 白菜豆腐 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 清炒西兰花 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 香菇油菜 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 清炒藕片 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 清炒菜花 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 西葫鸡蛋 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 家常豆腐 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 肉炒芹菜 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 肉炒香菇 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 鱼香肉丝 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 木须肉 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 过油肉 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 肉末茄子 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 青椒炒肉 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 毛血旺 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 鱼香茄子 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 鸡腿 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 口水鸡 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 水煮肉片 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 红烧肉海带 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 红烧肉土豆 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 糖醋里脊 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 麻辣香锅 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 干锅鸭 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 辣子鸡块 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 麻辣鱼片 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 肉末蒸蛋 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 风味小酥肉 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 红烧鸡块 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 豆泡红烧肉 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 菠萝咕噜肉 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 杭椒肉段 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 梅菜蒸肉 ', isNew: false, window: ' 小碗菜 ' },
+                    { name: ' 麻辣烫 ', isNew: false, window: ' 麻辣烫 ' },
+                    { name: ' 麻辣香锅 ', isNew: false, window: ' 麻辣烫 ' },
+                    { name: ' 麻辣拌 ', isNew: false, window: ' 麻辣烫 ' },
+                    { name: ' 香辣鸡腿堡 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 劲脆鸡腿堡 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 田园脆鸡堡 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 至尊牛堡 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 墨西哥鸡肉卷 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 奥尔良鸡腿堡 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 藤椒鸡腿堡 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 至尊鲜虾堡 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 深海鳕鱼堡 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 经典暖太熊热狗 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 熔岩芝士炸热狗 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 闪电牛肉热狗 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 意式香肠披萨 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 奥尔良鸡肉披萨 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 鸡米花披萨 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 蛋挞 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 翅根 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 骨肉相连 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 南瓜天妇罗 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 薯饼 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 薯条 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 上校鸡块 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 鸡米花 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 雪花鸡柳 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 鸡腿 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 雪花鸡排 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 奥尔良烤翅 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 地瓜丸 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 红豆派 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 菠萝派 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 香芋派 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 杨枝甘露 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 棒打鲜橙 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 葡萄芋園 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 草莓冻冻 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 蜜桃乌龙 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 蓝莓青桔冰揺茶 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 百香乌龙双响炮 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 元气玫果 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 魔法脆脆 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 黒珍珠圣代 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 草莓圣代 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 奥利奥圣代 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 草莓手摇奶昔 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 蓝莓手摇奶昔 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 水蜜桃手摇奶昔 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 奥利奥手摇奶昔 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 柠檬益菌多 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 草莓益菌多 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 珍珠奶荼 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 桃桃乌龙奶茶 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 椰果奶茶 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 红豆奶荼 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 茉莉奶緑 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 大桶全家福 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 生椰拿铁 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 柠柠冰咖 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 橙 C 冰咖 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 经典冰美式 ', isNew: false, window: ' 西餐厅汉堡 ' },
+                    { name: ' 椒麻・鸡肉饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 招牌・卤肉饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 孜然・炸鸡饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 特色・口水鸡饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 酱香・牛肉饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 卤汁豆干饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 椒麻・鸭杂饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 可乐・翅根饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 卤汁・鸡腿饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 金牌・肘子饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 椒麻・腐竹饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 椒麻・猪头肉饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 椒麻・鸭肉饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 广式・腊肠饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 椒麻・土豆片饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 洋葱肥牛鲜蔬拌饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 鸡腿滑蛋谷物饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 鸡胸滑蛋谷物饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 牛排滑蛋谷物饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 鸡胸牛排双拼滑蛋谷物饭 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 低脂黑椒牛排意面 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 黑椒鸡胸意面 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 黑椒鸡胸 + 牛排番茄意面 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 鸡胸番茄意面 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 鸡腿番茄意面 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 牛排番茄意面 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 虾仁番茄意面 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 辣白菜鸡胸肉热食碗 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 辣白菜鸡胸牛排双拼 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 辣白菜牛排热食碗 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 辣白菜鸡腿肉热食碗 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 辣白菜 + 牛排 + 虾仁 ', isNew: false, window: ' 椒麻・热卤拌饭 ' },
+                    { name: ' 三鲜小锅 ', isNew: true, window: ' 酥肉小锅 ' },
+                    { name: ' 鲜肉小锅 ', isNew: true, window: ' 酥肉小锅 ' },
+                    { name: ' 里脊肉片 ', isNew: true, window: ' 酥肉小锅 ' },
+                    { name: ' 酥肉小锅 ', isNew: true, window: ' 酥肉小锅 ' },
+                    { name: ' 香酥鸡小锅 ', isNew: true, window: ' 酥肉小锅 ' },
+                    { name: ' 鳕鱼排小锅 ', isNew: true, window: ' 酥肉小锅 ' },
+                    { name: ' 全家福小锅 ', isNew: true, window: ' 酥肉小锅 ' },
+                    { name: ' 肥牛小锅排 ', isNew: true, window: ' 酥肉小锅 ' },
+                    { name: ' 排骨小锅 ', isNew: true, window: ' 酥肉小锅 ' },
+                    { name: ' 牛肉小锅 ', isNew: true, window: ' 酥肉小锅 ' },
+                    { name: ' 烤盘饭 ', isNew: false, window: ' 烤盘饭 ' },
+                    { name: ' 番茄鸡蛋 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 香菇肉丝 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 酸菜肉丝 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 土豆焖肉 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 香干炒肉 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 招牌肉酱 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 三鲜肉丸 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 藤椒肉丝 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 香锅焖鸡块 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 椒麻鸡丝 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 冒烤鸭 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 蟹黄肉酱 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 招牌黄牛肉 ', isNew: false, window: ' 嗨族拌面 ' },
+                    { name: ' 可乐鸡块套餐 ', isNew: false, window: ' 可乐鸡块 ' },
+                    { name: ' 孜然肉丁套餐 ', isNew: false, window: ' 可乐鸡块 ' },
+                    { name: ' 杭椒肉段套餐 ', isNew: false, window: ' 可乐鸡块 ' },
+                    { name: ' 辣椒炒肉套餐 ', isNew: false, window: ' 可乐鸡块 ' },
+                    { name: ' 港式烧鸭套餐 ', isNew: false, window: ' 可乐鸡块 ' },
+                    { name: ' 啤酒鸭套餐 ', isNew: false, window: ' 可乐鸡块 ' },
+                    { name: ' 回锅肉套餐 ', isNew: false, window: ' 可乐鸡块 ' },
+                    { name: ' 招牌肉酱米线 ', isNew: false, window: ' 生烫牛肉米线 ' },
+                    { name: ' 招牌肉酱面 ', isNew: false, window: ' 生烫牛肉米线 ' },
+                    { name: ' 肉酱拌面 ', isNew: false, window: ' 生烫牛肉米线 ' },
+                    { name: ' 肉酱拌粉 ', isNew: false, window: ' 生烫牛肉米线 ' },
+                    { name: ' 招牌生烫牛肉米线 ', isNew: false, window: ' 生烫牛肉米线 ' },
+                    { name: ' 招牌生烫牛肉面 ', isNew: false, window: ' 生烫牛肉米线 ' },
+                    { name: ' 招牌小笼包 / 笼 ', isNew: false, window: ' 小笼包 ' },
+                    { name: ' 玉米鲜肉小笼包 / 笼 ', isNew: false, window: ' 小笼包 ' },
+                    { name: ' 鲜肉蒸饺 / 笼 ', isNew: false, window: ' 小笼包 ' },
+                    { name: ' 南方小馄饨 ', isNew: false, window: ' 小笼包 ' },
+                    { name: ' 紫菜蛋花汤 / 碗 ', isNew: false, window: ' 小笼包 ' },
+                    { name: ' 甜豆浆 / 碗 ', isNew: false, window: ' 小笼包 ' },
+                    { name: ' 掉渣饼 ', isNew: false, window: ' 掉渣饼 ' },
+                    { name: ' 手抓饼 ', isNew: false, window: ' 掉渣饼 ' },
+                    { name: ' 烤冷面 ', isNew: false, window: ' 掉渣饼 ' },
+                    { name: ' 日晒番茄牛肉饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 麻麻辣辣牛肉饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 湖南辣椒炒肉 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 鱼香鸡块饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 烧肉梅菜饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 红烧肉炸蛋饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 香汁肉末茄子饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 烧肉土豆片饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 蟹黄豆腐饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 大碗热辣鸡肉饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 大碗黑鸭饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 大碗菠萝咕咾肉饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 大碗蜜汁鸡肉饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 大碗孜然肉片饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 大碗奥尔良烤肉饭 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 招牌羊杂汤面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 招牌肉酱拌面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 红烧牛肉汤面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 韩式烤肉火鸡拌面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 金汤酸菜肥牛汤面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 韩式鸡丝火鸡面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 西红柿鸡蛋汤面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 香菇肉丝汤面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 香辣鸡块汤面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 麻辣牛肉汤面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 鸡蛋炸酱拌面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 茄子肉丁拌面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 辣椒炒肉拌面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 梅菜烧肉拌面 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 肉夹馍肥瘦 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 虾仁大馄饨 ', isNew: true, window: ' 牛肉饭 ' },
+                    { name: ' 肉夹馍纯瘦肉 ', isNew: true, window: ' 牛肉饭 ' }
+                ]
+            },
+            {
+                name: '教工二层',
+                hours: {
+                    breakfast: '不营业',
+                    lunch: '11:00 - 13:00',
+                    dinner: '17:00 - 19:00'
+                },
+                dishes: [
+                    { name: ' 麻辣烫 ', isNew: false, window: '' },
+                    { name: ' 麻辣拌 ', isNew: false, window: '' },
+                    { name: ' 黑椒牛肉蛋包饭 ', isNew: false, window: '' },
+                    { name: ' 咖喱牛肉蛋包饭 ', isNew: false, window: '' },
+                    { name: ' 风味牛肉蛋包饭 ', isNew: false, window: '' },
+                    { name: ' 滑蛋牛肉蛋包饭 ', isNew: false, window: '' },
+                    { name: ' 秘制牛柳蛋包饭 ', isNew: false, window: '' },
+                    { name: ' 麦香鸡肉蛋包饭 ', isNew: false, window: '' },
+                    { name: ' 孜然肥牛蛋包饭 ', isNew: false, window: '' },
+                    { name: ' 藤椒鸡排蛋包饭 ', isNew: false, window: '' },
+                    { name: ' 奥尔良鸡肉拌饭 ', isNew: false, window: '' },
+                    { name: ' 秘制牛柳拌饭 ', isNew: false, window: '' },
+                    { name: ' 孜然肥牛拌饭 ', isNew: false, window: '' },
+                    { name: ' 素什锦拌饭 ', isNew: false, window: '' },
+                    { name: ' 云吞 ', isNew: false, window: '' },
+                    { name: ' 牛肉汤 ', isNew: false, window: '' },
+                    { name: ' 牛杂汤 ', isNew: false, window: '' },
+                    { name: ' 香辣烤鱼饭 ', isNew: false, window: '' },
+                    { name: ' 麻辣烤鱼饭 ', isNew: false, window: '' },
+                    { name: ' 番茄烤鱼饭 ', isNew: false, window: '' },
+                    { name: ' 酱香烤鱼饭 ', isNew: false, window: '' },
+                    { name: ' 牛肉大葱饺子 ', isNew: false, window: '' },
+                    { name: ' 羊肉大葱饺子 ', isNew: false, window: '' },
+                    { name: ' 牛肉胡萝卜饺子 ', isNew: false, window: '' },
+                    { name: ' 牛肉香菇饺子 ', isNew: false, window: '' },
+                    { name: ' 羊肉韭菜饺子 ', isNew: false, window: '' },
+                    { name: ' 韭菜鸡蛋饺子 ', isNew: false, window: '' },
+                    { name: ' 馄饨 ', isNew: false, window: '' },
+                    { name: ' 海南鸡饭 ', isNew: true, window: '' },
+                    { name: ' 柠檬脆皮鸡饭 ', isNew: true, window: '' },
+                    { name: ' 柠檬鸡排饭 ', isNew: true, window: '' },
+                    { name: ' 土耳其烤肉拌饭 ', isNew: true, window: '' },
+                    { name: ' 麻辣烤肉拌饭 ', isNew: true, window: '' },
+                    { name: ' 蜜汁脆皮鸡饭 ', isNew: true, window: '' },
+                    { name: ' 沙拉鸡排饭 ', isNew: true, window: '' },
+                    { name: ' 蜜汁鸡排饭 ', isNew: true, window: '' },
+                    { name: ' 芝士脆皮鸡饭 ', isNew: true, window: '' },
+                    { name: ' 蜜汁芝士烤肉拌饭 ', isNew: true, window: '' },
+                    { name: ' 番茄沙拉烤肉拌饭 ', isNew: true, window: '' },
+                    { name: ' 牛肉板面 ', isNew: false, window: '' },
+                    { name: ' 牛肉拉面 ', isNew: false, window: '' },
+                    { name: ' 刀削面 ', isNew: false, window: '' },
+                    { name: ' 红烧牛肉面 ', isNew: false, window: '' },
+                    { name: ' 牛杂面 ', isNew: false, window: '' },
+                    { name: ' 土豆牛肉盖面 ', isNew: false, window: '' },
+                    { name: ' 油泼面 ', isNew: false, window: '' },
+                    { name: ' 过油肉盖面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 孜然肉盖面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 鱼香肉丝盖面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 地三鲜盖面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 西红柿鸡蛋盖面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 大盘鸡盖面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 肉炒土豆丝面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 青椒牛肉盖面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 肉炒包菜盖面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 葱爆肉盖面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 炒拉条 ', isNew: false, window: '' },
+                    { name: ' 炒刀削面 ', isNew: false, window: '' },
+                    { name: ' 肉炒饼 ', isNew: false, window: '' },
+                    { name: ' 鸡蛋炒饼 ', isNew: false, window: '' },
+                    { name: ' 炒方便面 ', isNew: false, window: '' },
+                    { name: ' 滑蛋肉盖面 / 饭 ', isNew: false, window: '' },
+                    { name: ' 烩面 ', isNew: false, window: '' },
+                    { name: ' 黄焖鸡 + 铁板 + 蹦蹦鸡 ', isNew: false, window: '' },
+                    { name: ' 肉排意面 ', isNew: false, window: '' },
+                    { name: ' 黄焖鸡米饭 ', isNew: false, window: '' },
+                    { name: ' 黄焖巴沙鱼 ', isNew: false, window: '' },
+                    { name: ' 黄焖小酥肉 ', isNew: false, window: '' },
+                    { name: ' 黄焖金针菇肥牛 ', isNew: false, window: '' },
+                    { name: ' 黄焖土豆肥牛 ', isNew: false, window: '' },
+                    { name: ' 黄焖娃娃菜肥牛 ', isNew: false, window: '' },
+                    { name: ' 黄焖鱼豆腐 ', isNew: false, window: '' },
+                    { name: ' 黄焖千页豆腐 ', isNew: false, window: '' },
+                    { name: ' 照烧鸡排饭 ', isNew: false, window: '' },
+                    { name: ' 咖喱鸡肉饭 ', isNew: false, window: '' },
+                    { name: ' 香煎肥牛饭 ', isNew: false, window: '' },
+                    { name: ' 芝士鸡扒饭 ', isNew: false, window: '' },
+                    { name: ' 蹦蹦鸡米饭 ', isNew: false, window: '' },
+                    { name: ' 水煮肉片 ', isNew: false, window: '' },
+                    { name: ' 一品肥牛 ', isNew: false, window: '' },
+                    { name: ' 水煮鱼 ', isNew: false, window: '' },
+                    { name: ' 五谷鱼粉 ', isNew: false, window: '' }
+                ]
+            },
+            {
+                name: '教工四层',
+                hours: {
+                    breakfast: '不营业',
+                    lunch: '10:30 - 13:30',
+                    dinner: '16:30 - 20:00'
+                },
+                dishes: [
+                    { name: ' 油泼面 ', isNew: false, window: '' },
+                    { name: ' 肉末炸酱面 ', isNew: false, window: '' },
+                    { name: ' 香辣剁椒面 ', isNew: false, window: '' },
+                    { name: ' 肉块干拌面 ', isNew: false, window: '' },
+                    { name: ' 肉块鸡汤面 ', isNew: false, window: '' },
+                    { name: ' 香菇鸡块面 ', isNew: false, window: '' },
+                    { name: ' 双味二合一 ', isNew: false, window: '' },
+                    { name: ' 精品三合一 ', isNew: false, window: '' },
+                    { name: ' 酸菜牛肉面 ', isNew: false, window: '' },
+                    { name: ' 红烧牛肉面 ', isNew: false, window: '' },
+                    { name: ' 网红爆肚面 ', isNew: false, window: '' },
+                    { name: ' 肉夹馍 ', isNew: false, window: '' },
+                    { name: ' 羊肉素粉 ', isNew: false, window: '' },
+                    { name: ' 笋尖羊汤粉 ', isNew: false, window: '' },
+                    { name: ' 炸酱羊汤粉 ', isNew: false, window: '' },
+                    { name: ' 鸡丝羊汤粉 ', isNew: false, window: '' },
+                    { name: ' 原味羊汤粉 ', isNew: false, window: '' },
+                    { name: ' 羊杂粉 ', isNew: false, window: '' },
+                    { name: ' 秘制酸汤羊肉粉 ', isNew: false, window: '' },
+                    { name: ' 混合肉杂粉 ', isNew: false, window: '' },
+                    { name: ' 羊肉汤饭 ', isNew: false, window: '' },
+                    { name: ' 老麻抄手 ', isNew: false, window: '' },
+                    { name: ' 红油抄手 ', isNew: false, window: '' },
+                    { name: ' 重庆小面 ', isNew: false, window: '' },
+                    { name: ' 豌炸小面 ', isNew: false, window: '' },
+                    { name: ' 肥肠面 ', isNew: false, window: '' },
+                    { name: ' 泡椒鸡杂面 ', isNew: false, window: '' },
+                    { name: ' 炸酱面 ', isNew: false, window: '' },
+                    { name: ' 酸菜肉丝面 ', isNew: false, window: '' },
+                    { name: ' 宜宾燃面 ', isNew: false, window: '' },
+                    { name: ' 热干面 ', isNew: false, window: '' },
+                    { name: ' 葱油拌面 ', isNew: false, window: '' },
+                    { name: ' 香辣拌面 ', isNew: false, window: '' },
+                    { name: ' 鸡丝拌面 ', isNew: false, window: '' },
+                    { name: ' 招牌卤肉饭 ', isNew: false, window: '' },
+                    { name: ' 卤汁肉肠饭 ', isNew: false, window: '' },
+                    { name: ' 椒麻鸡拼饭 ', isNew: false, window: '' },
+                    { name: ' 椒麻香肉饭 ', isNew: false, window: '' },
+                    { name: ' 卤汁鸭腿饭 ', isNew: false, window: '' },
+                    { name: ' 椒麻脆骨饭 ', isNew: false, window: '' },
+                    { name: ' 滑香鸡肉饭 ', isNew: false, window: '' },
+                    { name: ' 卤汁素鸡饭 ', isNew: false, window: '' },
+                    { name: ' 卤汁鸡腿饭 ', isNew: false, window: '' },
+                    { name: ' 椒麻鸭饭 ', isNew: false, window: '' },
+                    { name: ' 卤汁鸡排饭 ', isNew: false, window: '' },
+                    { name: ' 招牌猪肘饭 ', isNew: false, window: '' },
+                    { name: ' 肥牛饭 ', isNew: false, window: '' },
+                    { name: ' 可乐鸡腿饭 ', isNew: false, window: '' },
+                    { name: ' 泸州腐竹饭 ', isNew: false, window: '' },
+                    { name: ' 卤汁土豆饭 ', isNew: false, window: '' },
+                    { name: ' 炸鸡排套餐 ', isNew: false, window: '' },
+                    { name: ' 滑蛋鸡腿饭 ', isNew: false, window: '' },
+                    { name: ' 滑蛋培根饭 ', isNew: false, window: '' },
+                    { name: ' 滑蛋腊肠饭 ', isNew: false, window: '' },
+                    { name: ' 滑蛋五花肉饭 ', isNew: false, window: '' },
+                    { name: ' 滑蛋虾仁饭 ', isNew: false, window: '' },
+                    { name: ' 滑蛋牛肉饭 ', isNew: false, window: '' },
+                    { name: ' 滑蛋肥牛饭 ', isNew: false, window: '' },
+                    { name: ' 黄焖鸡 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 黄焖鸡爪 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 黄焖排骨 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 黄焖牛肉 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 黄焖豆腐 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 黄焖小酥肉 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 锡纸烤鱼 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 锡纸小酥肉 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 锡纸鸡块 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 锡纸金针菇 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 锡纸鱼豆腐 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 锡纸鸭血 + 配菜 ', isNew: false, window: '' },
+                    { name: ' 番茄鸡蛋饭 ', isNew: false, window: '' },
+                    { name: ' 酸辣土豆丝饭 ', isNew: false, window: '' },
+                    { name: ' 地三鲜饭 ', isNew: false, window: '' },
+                    { name: ' 尖椒鸡蛋饭 ', isNew: false, window: '' },
+                    { name: ' 肉末茄子饭 ', isNew: false, window: '' },
+                    { name: ' 鱼香肉丝饭 ', isNew: false, window: '' },
+                    { name: ' 宫保鸡丁饭 ', isNew: false, window: '' },
+                    { name: ' 尖椒肉丝饭 ', isNew: false, window: '' },
+                    { name: ' 辣子鸡丁饭 ', isNew: false, window: '' },
+                    { name: ' 小炒肉饭 ', isNew: false, window: '' },
+                    { name: ' 木须肉饭 ', isNew: false, window: '' },
+                    { name: ' 回锅肉饭 ', isNew: false, window: '' },
+                    { name: ' 黑椒牛柳饭 ', isNew: false, window: '' },
+                    { name: ' 蛋炒肉饭 ', isNew: false, window: '' },
+                    { name: ' 孜然牛肉饭 ', isNew: false, window: '' }
+                ]
+            },
+            {
+                name: '教工五层',
+                hours: {
+                    breakfast: '6:30 - NaN',
+                    lunch: 'NaN - NaN',
+                    dinner: 'NaN - 20:00'
+                },
+                dishes: [
+                    { name: ' 招聘蜀香鸡 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 湖南小炒鸡 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 鲍汁蟹柳茄子 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 川辣豆花饭 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 乐山辣子鸡 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 大阪照烧鸡 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 肉酱时蔬拌饭 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 韩式时蔬拌饭 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 双蛋海苔拌饭 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 意式炸鸡饭 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 东印咖喱炸鸡饭 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 金牌酱鸭饭 ', isNew: false, window: ' 一纸鸡 ' },
+                    { name: ' 砂锅玉米排骨 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅鸡块 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅红烧肉 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅小酥肉 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅豆腐 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅红烧牛肉 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅鱼豆腐 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅金针肥牛 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅金针肥羊 ', isNew: true, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅手工虾滑 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅土豆粉 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅辛拉面 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅酸菜汆白肉 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅蜀香牛腩 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅招聘肘子 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅手擀面 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅方便面 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅乌冬面 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅山药排骨 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅小鸡蘑菇 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 砂锅莲藕猪蹄 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 川辣百叶砂锅 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 培根砂锅 ', isNew: false, window: ' 蜀王焗砂锅 ' },
+                    { name: ' 葱油拌面 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 红烧牛肉拌面 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 剁椒拌面 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 青椒拌面 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 肉酱拌面 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 蟹黄风味拌面 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 番茄牛肉拌面 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 韭菜鸡蛋水饺 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 白菜猪肉水饺 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 三鲜水饺 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 牛肉大葱水饺 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 羊肉大葱水饺 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 酸菜猪肉水饺 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 大葱猪肉水饺 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 茴香猪肉水饺 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 芹菜猪肉水饺 ', isNew: false, window: ' 巴甄拌面、爱心水饺 ' },
+                    { name: ' 黑椒牛柳拌饭 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 传统拌饭 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 海鲜炒面 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 海鲜辛拉面 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 海鲜乌冬面 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 拉面炒年糕 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 泡菜五花肉拌饭 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 海鲜炒饭 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 黑椒牛肉意面 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 黑椒菌菇意面 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 牛肉番茄意面 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 番茄虾仁意面 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 培根拌饭 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 金针肥牛拌饭 ', isNew: false, window: ' 韩式石锅拌饭 ' },
+                    { name: ' 鸡丝滑蛋饭 ', isNew: false, window: ' 港式滑蛋饭 ' },
+                    { name: ' 猪肉滑蛋饭 ', isNew: false, window: ' 港式滑蛋饭 ' },
+                    { name: ' 奥尔良滑蛋饭 ', isNew: false, window: ' 港式滑蛋饭 ' },
+                    { name: ' 火腿滑蛋饭 ', isNew: false, window: ' 港式滑蛋饭 ' },
+                    { name: ' 番茄火腿滑蛋饭 ', isNew: false, window: ' 港式滑蛋饭 ' },
+                    { name: ' 虾仁滑蛋饭 ', isNew: false, window: ' 港式滑蛋饭 ' },
+                    { name: ' 牛肉滑蛋饭 ', isNew: false, window: ' 港式滑蛋饭 ' },
+                    { name: ' 番茄虾仁滑蛋饭 ', isNew: false, window: ' 港式滑蛋饭 ' },
+                    { name: ' 番茄牛肉滑蛋饭 ', isNew: false, window: ' 港式滑蛋饭 ' },
+                    { name: ' 培根滑蛋饭 ', isNew: false, window: ' 港式滑蛋饭 ' },
+                    { name: ' 黑椒鸡扒饭 ', isNew: false, window: ' 港式鸡扒饭 ' },
+                    { name: ' 咖喱鸡扒饭 ', isNew: false, window: ' 港式鸡扒饭 ' },
+                    { name: ' 番茄鸡扒饭 ', isNew: false, window: ' 港式鸡扒饭 ' },
+                    { name: ' 奥尔良鸡扒饭 ', isNew: false, window: ' 港式鸡扒饭 ' },
+                    { name: ' 猪肉扒饭 ', isNew: false, window: ' 港式鸡扒饭 ' },
+                    { name: ' 培根饭 ', isNew: false, window: ' 港式鸡扒饭 ' },
+                    { name: ' 牛肉扒饭 ', isNew: false, window: ' 港式鸡扒饭 ' },
+                    { name: ' 五谷招聘鱼粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷酸辣鱼粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 鲜香玉米鱼粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷番茄鱼丸粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷番茄肉末粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷招聘虾仁粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷原味虾仁粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷招聘蟹柳粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷招聘虾饺粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷麻辣虾饺粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷麻辣蛋饺粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷酸辣蟹排粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷招聘亲亲肠 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 五谷招聘蟹排粉 ', isNew: false, window: ' 五谷鱼粉 ' },
+                    { name: ' 沙拉烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 孜然烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 番茄烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 叉烧烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 蜜汁烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 糖醋烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 椒香烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 韩式烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 绝味烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 香辣烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 麻辣烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 千岛烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 黑椒烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 甜辣烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 奶香芝士烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 蜂蜜芥末烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 蒜香酱油烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 琥珀炸鸡烤肉饭 ', isNew: false, window: ' 烤肉拌饭 ' },
+                    { name: ' 沙拉脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 孜然脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 番茄脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 叉烧脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 蜜汁脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 糖醋脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 椒香脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 韩式脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 绝味脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 香辣脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 麻辣脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 千岛脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 黑椒脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 甜辣脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 奶香芝士脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 蜂蜜芥末脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 蒜香酱油脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 琥珀脆皮鸡饭 ', isNew: false, window: ' 脆皮鸡饭 ' },
+                    { name: ' 老麻抄手 ', isNew: false, window: ' 麻辣抄手 ' },
+                    { name: ' 重庆小面 ', isNew: false, window: ' 麻辣抄手 ' },
+                    { name: ' 碗杂小面 ', isNew: false, window: ' 麻辣抄手 ' },
+                    { name: ' 杂酱小面 ', isNew: false, window: ' 麻辣抄手 ' },
+                    { name: ' 牛肉小面 ', isNew: false, window: ' 麻辣抄手 ' },
+                    { name: ' 西红柿鸡蛋面 ', isNew: false, window: ' 麻辣抄手 ' },
+                    { name: ' 香菇鸡丁面 ', isNew: false, window: ' 麻辣抄手 ' },
+                    { name: ' 炸酱面 ', isNew: false, window: ' 麻辣抄手 ' },
+                    { name: ' 牛肉面 ', isNew: false, window: ' 麻辣抄手 ' },
+                    { name: ' 千里香馄饨 ', isNew: false, window: ' 麻辣抄手 ' },
+                    { name: ' 原味螺蛳粉 ', isNew: false, window: ' 柳州螺蛳粉 ' },
+                    { name: ' 肉末螺蛳粉 ', isNew: false, window: ' 柳州螺蛳粉 ' },
+                    { name: ' 牛肉螺蛳粉 ', isNew: false, window: ' 柳州螺蛳粉 ' },
+                    { name: ' 酸辣粉 ', isNew: false, window: ' 重庆酸辣粉 ' },
+                    { name: ' 肉末酸辣粉 ', isNew: false, window: ' 重庆酸辣粉 ' },
+                    { name: ' 牛肉酸辣粉 ', isNew: false, window: ' 重庆酸辣粉 ' }
+                ]
+            },
+            {
+                name: '风味二层',
+                hours: {
+                    breakfast: '6:30 - 10:30',
+                    lunch: '10:30 - 13:30',
+                    dinner: '16:00 - 19:30'
+                },
+                dishes: [
+                    { name: ' 川香回锅肉盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 孜然烤肉盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 木须肉盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 鱼香肉丝盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 尖椒肉丝盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 蒜苔肉丝盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 宫爆鸡丁盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 酱爆鸡丁盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 香辣肉丝盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 滑溜肉片盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 剁椒鸡蛋盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 老干妈鸡丁盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 湘西小炒肉盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 红烧肉盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 回锅腊肉盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 川味腊肠盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 蒜苔腊肉盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 香干腊肉盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 滑蛋肉片盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 蛋炒肉盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 茶树菇牛柳盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 烧椒黑椒牛柳盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 脆笋肉片盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 脆笋牛柳盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 腐竹肉片盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 老干妈骨肉相连盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 卤肉饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 梅菜扣肉饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 杭椒孜然牛柳盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 肉酱茄子盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 肉酱豆腐盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 尖椒鸡蛋盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 韭菜鸡蛋盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 鱼香茄子盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 香辣孜然土豆片盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 地三鲜盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 红烧茄子盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 西红柿鸡蛋盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 酸辣土豆丝盖饭 ', isNew: false, window: ' 盖饭系列 ' },
+                    { name: ' 黑椒鸡扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 咖喱鸡扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 麻辣鸡扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 西汁鸡扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 黑椒猪扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 咖喱猪扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 麻辣猪扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 西汁猪扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 黑椒牛扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 咖喱牛扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 麻辣牛扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 西汁牛扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 鸡肉滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 培根滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 火腿滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 川味腊肠滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 广味腊肠滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 猪扒滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 虾仁滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 鱿鱼滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 黑椒鸡扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 咖喱鸡扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 麻辣鸡扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 西汁鸡扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 黑椒猪扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 咖喱猪扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 麻辣猪扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 西汁猪扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 黑椒牛扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 咖喱牛扒饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 虾仁滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 鱿鱼滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 牛肉滑蛋饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 铁板鸡肉饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 铁板五花肉饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 铁板鱿鱼饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 铁板牛肉饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 铁板羊肉饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 照烧鸡腿饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 照烧鱿鱼饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 照烧猪肉饭 ', isNew: false, window: ' 鸡扒饭系列 ' },
+                    { name: ' 香菇猪肉饺子 ', isNew: false, window: ' 饺子类 ' },
+                    { name: ' 猪肉大葱饺子 ', isNew: false, window: ' 饺子类 ' },
+                    { name: ' 韭菜鸡蛋饺子 ', isNew: false, window: ' 饺子类 ' },
+                    { name: ' 原味米粉 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 麻辣米粉 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 酸辣米粉 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 笋尖米粉 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 三鲜米粉 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 鸡块米粉 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 酱肉米粉 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 排骨米粉 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 牛肉米粉 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 肥肠米粉 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 重庆小面 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 笋尖小面 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 臊子小面 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 鸡块小面 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 三鲜小面 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 肉酱面 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 肉末酸菜小面 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 排骨小面 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 牛肉小面 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 肥肠小面 ', isNew: false, window: ' 小面类 ' },
+                    { name: ' 香锅 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 蛋炒饭 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 腊肠炒饭 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 虾仁鸡蛋炒饭 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 培根炒饭 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 老干妈鸡肉炒饭 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 咖喱鸡肉炒饭 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 尖椒肉丝炒饭 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 香菇鸡腿炒饭 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 扬州炒饭 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 奥尔良鸡腿炒饭 ', isNew: false, window: ' 香锅 + 炒饭 ' },
+                    { name: ' 自选菜 ', isNew: false, window: ' 自选 ' }
+                ]
+            },
+            {
+                name: '风味三层',
+                hours: {
+                    breakfast: '',
+                    lunch: '',
+                    dinner: ''
+                },
+                dishes: [
+                    { name: ' 石锅土豆条 ', isNew: false, window: '' },
+                    { name: ' 石锅肉沫豆腐 ', isNew: false, window: '' },
+                    { name: ' 石锅闷面 ', isNew: false, window: '' },
+                    { name: ' 石锅肉沫茄子 ', isNew: false, window: '' },
+                    { name: ' 石锅肉沫鸡蛋 ', isNew: false, window: '' },
+                    { name: ' 石锅雪花鸡柳饭 ', isNew: false, window: '' },
+                    { name: ' 石锅香酥鸡 ', isNew: false, window: '' },
+                    { name: ' 石锅小酥肉 ', isNew: false, window: '' },
+                    { name: ' 石锅烤五花肉 ', isNew: false, window: '' },
+                    { name: ' 石锅水煮肉片 ', isNew: false, window: '' },
+                    { name: ' 石锅小鲜肉饭 ', isNew: false, window: '' },
+                    { name: ' 石锅香菇焖鸡饭 ', isNew: false, window: '' },
+                    { name: ' 石锅红烧肉饭 ', isNew: false, window: '' },
+                    { name: ' 石锅酸菜白肉 ', isNew: false, window: '' },
+                    { name: ' 石锅肉片饭 ', isNew: false, window: '' },
+                    { name: ' 石锅酸菜鱼 ', isNew: false, window: '' },
+                    { name: ' 肉沫下饭菜饭 ', isNew: false, window: '' },
+                    { name: ' 鲜笋烧鸭饭 ', isNew: false, window: '' },
+                    { name: ' 手撕鸡饭 ', isNew: false, window: '' },
+                    { name: ' 乡炒肉饭 ', isNew: false, window: '' },
+                    { name: ' 孜然鸡丁饭 ', isNew: false, window: '' },
+                    { name: ' 辣椒鸭杂饭 ', isNew: false, window: '' },
+                    { name: ' 精品猪脚饭 ', isNew: false, window: '' },
+                    { name: ' 金牌肘子饭 ', isNew: false, window: '' },
+                    { name: ' 金针肥牛饭 ', isNew: false, window: '' },
+                    { name: ' 特色鸡米饭 ', isNew: false, window: '' },
+                    { name: ' 黑椒鸭腿饭 ', isNew: false, window: '' },
+                    { name: ' 秘制豆腐饭 ', isNew: false, window: '' },
+                    { name: ' 金牌烤肉饭 ', isNew: false, window: '' },
+                    { name: ' 香烤上腿饭 ', isNew: false, window: '' },
+                    { name: ' 海南烧鸡饭 ', isNew: false, window: '' },
+                    { name: ' 柠檬鸡饭 ', isNew: false, window: '' },
+                    { name: ' 鸡排豆腐饭 ', isNew: false, window: '' },
+                    { name: ' 白斩鸡饭 ', isNew: false, window: '' },
+                    { name: ' 沙拉鸡饭 ', isNew: false, window: '' },
+                    { name: ' 新式口水鸡饭 ', isNew: false, window: '' },
+                    { name: ' 烤盘饭 ', isNew: false, window: '' },
+                    { name: ' 金汤鱼片 ', isNew: false, window: '' },
+                    { name: ' 番茄鱼片 ', isNew: false, window: '' },
+                    { name: ' 酸菜鱼片 ', isNew: false, window: '' },
+                    { name: ' 麻辣鱼片 ', isNew: false, window: '' },
+                    { name: ' 麻辣涮肉 ', isNew: false, window: '' },
+                    { name: ' 金汤涮肉 ', isNew: false, window: '' },
+                    { name: ' 酸菜涮肉 ', isNew: false, window: '' },
+                    { name: ' 鸡汤小面 ', isNew: false, window: '' },
+                    { name: ' 西红柿鸡蛋面 ', isNew: false, window: '' },
+                    { name: ' 酸菜小面 ', isNew: false, window: '' },
+                    { name: ' 鱼豆腐面 ', isNew: false, window: '' },
+                    { name: ' 酸菜肉沫面 ', isNew: false, window: '' },
+                    { name: ' 豌豆肉沫面 ', isNew: false, window: '' },
+                    { name: ' 特色重庆小面 ', isNew: false, window: '' },
+                    { name: ' 重庆担担面 ', isNew: false, window: '' },
+                    { name: ' 鸡块小面 ', isNew: false, window: '' },
+                    { name: ' 猪肉小面 ', isNew: false, window: '' },
+                    { name: ' 宜宾燃面 ', isNew: false, window: '' },
+                    { name: ' 排骨小面 ', isNew: false, window: '' },
+                    { name: ' 牛肉小面 ', isNew: false, window: '' },
+                    { name: ' 鱼豆腐米粉 ', isNew: false, window: '' },
+                    { name: ' 酸菜肉沫米粉 ', isNew: false, window: '' },
+                    { name: ' 干拌米粉 ', isNew: false, window: '' },
+                    { name: ' 鸡块米粉 ', isNew: false, window: '' },
+                    { name: ' 猪肉米粉 ', isNew: false, window: '' },
+                    { name: ' 排骨米粉 ', isNew: false, window: '' },
+                    { name: ' 牛肉米粉 ', isNew: false, window: '' },
+                    { name: ' 自选餐 ', isNew: false, window: '' }
+                ]
+            },
+            {
+                name: '风味四五',
+                hours: {
+                    breakfast: '不营业',
+                    lunch: '10:30 - 13:00',
+                    dinner: '风味四层：16:30 - 20:00\n风味五层：16:30 - 21:30'
+                },
+                dishes: [
+                    { name: ' 照烧鸡排铁板饭 ', isNew: false, window: ' 风味四层铁板饭系列 ' },
+                    { name: ' 韩式拌饭铁板饭 ', isNew: false, window: ' 风味四层铁板饭系列 ' },
+                    { name: ' 香煎肥牛铁板饭 ', isNew: false, window: ' 风味四层铁板饭系列 ' },
+                    { name: ' 黑椒烧肉铁板饭 ', isNew: false, window: ' 风味四层铁板饭系列 ' },
+                    { name: ' 咖喱鸡肉铁板饭 ', isNew: false, window: ' 风味四层铁板饭系列 ' },
+                    { name: ' 芝士鸡肉铁板饭 ', isNew: false, window: ' 风味四层铁板饭系列 ' },
+                    { name: ' 鸡腿堡 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 酥肉煲 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 香酥鸭煲 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 豆花嫩肉片 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 传统脆皮鸡饭 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 传统烤肉饭 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 传统双拼饭 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 传统石锅饭 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 肥牛拌饭 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 黑椒牛柳拌饭 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 韩式炸鸡拌饭 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 韭菜鸡蛋水饺 ', isNew: true, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 羊肉大葱水饺 ', isNew: true, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 牛肉香菇水饺 ', isNew: true, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 韩式烤肉拌饭 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 牛肉大葱水饺 ', isNew: false, window: ' 风味四层烤肉饭系列 ' },
+                    { name: ' 黄焖鸡米饭 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 黄焖小酥肉 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 黄焖巴沙鱼 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 鱼豆腐肥牛 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 娃娃菜肥牛 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 金针菇肥牛 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 茄子肥牛 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 土豆加肥牛 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 肥牛米粉 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 肥牛土豆粉 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 鱼粉 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 丸子米粉 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 丸子土豆粉 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 时蔬米粉 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 时蔬土豆粉 ', isNew: false, window: ' 风味四层黄焖鸡系列 ' },
+                    { name: ' 水煮金针菇肥牛 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 水煮巴沙鱼 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 水煮肉片 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 水煮酥肉 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 水煮鸭腿 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 水煮鸡块 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 重庆毛血旺 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 水煮培根 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 水煮鱼豆腐 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 水煮牛肉丸 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 水煮鱼丸 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 水煮冒菜 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 武汉红油热干面 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 热干面拌肉丝 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 热干面拌巴沙鱼 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 热干面拌鸡块 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 热干面拌鸡柳 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 热干面拌肥牛 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 啤酒鸭拌面 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 大盘鸡拌面 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 传统肉酱拌面 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 西红柿鸡蛋拌面 ', isNew: false, window: ' 风味四层水煮系列 ' },
+                    { name: ' 招牌卤肉饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 卤汁肉肠饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 脆皮鸡肉饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 卤香鸭腿饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 卤汁狮子头饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 新奥尔良腿排饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 匠心大鸡腿饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 卤汁鸡排饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 椒麻鸡肉饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 金牌肘子饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 手切牛肉饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 酱骨饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 猪耳饭 ', isNew: false, window: ' 风味四层卤肉饭系列 ' },
+                    { name: ' 金汤鱼片 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 砂锅鱼片 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 砂锅小酥肉 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 砂锅鱼片 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 鲍汁招牌鸡饭 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 鲍汁秘制牛柳饭 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 鲍汁秘制肥牛饭 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 鲍汁酱鸭饭 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 鲍汁金牌鱼饭 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 鲍汁鸡米花饭 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 鲍汁乌冬面 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 鲍汁鱼豆腐饭 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 老北京烤鸭套餐 ', isNew: false, window: ' 风味四层烤鸭系列 ' },
+                    { name: ' 麻辣烫 ', isNew: false, window: ' 风味五层麻辣烫系列 ' },
+                    { name: ' 麻辣拌 ', isNew: false, window: ' 风味五层麻辣烫系列 ' },
+                    { name: ' 麦香鸡肉蛋包饭 ', isNew: false, window: ' 风味五层麻辣烫系列 ' },
+                    { name: ' 孜然肥牛蛋包饭 ', isNew: false, window: ' 风味五层麻辣烫系列 ' },
+                    { name: ' 美味鸡排蛋包饭 ', isNew: false, window: ' 风味五层麻辣烫系列 ' },
+                    { name: ' 黑椒牛肉蛋包饭 ', isNew: false, window: ' 风味五层麻辣烫系列 ' },
+                    { name: ' 风味牛肉蛋包饭 ', isNew: false, window: ' 风味五层麻辣烫系列 ' },
+                    { name: ' 滑蛋牛肉蛋包饭 ', isNew: false, window: ' 风味五层麻辣烫系列 ' },
+                    { name: ' 秘制牛柳蛋包饭 ', isNew: false, window: ' 风味五层麻辣烫系列 ' },
+                    { name: ' 猪肉大葱水饺 ', isNew: false, window: ' 风味五层饺子系列 ' },
+                    { name: ' 韭菜鸡蛋水饺 ', isNew: false, window: ' 风味五层饺子系列 ' }
+                ]
+            },
+            {
+                name: '南区一层',
+                hours: {
+                    breakfast: '7:00 - 9:00',
+                    lunch: '11:00 - 13:00',
+                    dinner: '17:00 - 19:00'
+                },
+                dishes: [
+                    { name: ' 白鸡蛋 ', isNew: false, window: '' },
+                    { name: ' 煎鸡蛋 ', isNew: false, window: '' },
+                    { name: ' 油条 ', isNew: false, window: '' },
+                    { name: ' 手抓饼 ', isNew: false, window: '' },
+                    { name: ' 土豆丝卷饼 ', isNew: false, window: '' },
+                    { name: ' 白糖烧饼 ', isNew: false, window: '' },
+                    { name: ' 麻酱烧饼 ', isNew: false, window: '' },
+                    { name: ' 红糖饼 ', isNew: false, window: '' },
+                    { name: ' 肉夹馍 ', isNew: false, window: '' },
+                    { name: ' 双加 ', isNew: false, window: '' },
+                    { name: ' 红薯 ', isNew: false, window: '' },
+                    { name: ' 韭菜盒子 ', isNew: false, window: '' },
+                    { name: ' 小米粥 ', isNew: false, window: '' },
+                    { name: ' 紫米粥 ', isNew: false, window: '' },
+                    { name: ' 豆浆 ', isNew: false, window: '' },
+                    { name: ' 八宝粥 ', isNew: false, window: '' },
+                    { name: ' 猪肉韭菜包 ', isNew: false, window: '' },
+                    { name: ' 猪肉白菜包 ', isNew: false, window: '' },
+                    { name: ' 猪肉豇豆包 ', isNew: false, window: '' },
+                    { name: ' 猪肉茴香包 ', isNew: false, window: '' },
+                    { name: ' 猪肉大葱包 ', isNew: false, window: '' },
+                    { name: ' 牛肉胡萝卜包 ', isNew: false, window: '' },
+                    { name: ' 牛肉白萝卜包 ', isNew: false, window: '' },
+                    { name: ' 牛肉大葱包 ', isNew: false, window: '' },
+                    { name: ' 韭菜鸡蛋包 ', isNew: false, window: '' },
+                    { name: ' 胡萝卜鸡蛋包 ', isNew: false, window: '' },
+                    { name: ' 胡萝卜粉条包 ', isNew: false, window: '' },
+                    { name: ' 糖醋里脊 ', isNew: false, window: '' },
+                    { name: ' 糖醋小排 ', isNew: false, window: '' },
+                    { name: ' 麻辣烫 ', isNew: true, window: '' },
+                    { name: ' 元宝肉 ', isNew: false, window: '' },
+                    { name: ' 红烧鸡块 ', isNew: false, window: '' },
+                    { name: ' 孜然鸭胸 ', isNew: false, window: '' },
+                    { name: ' 蒜黄肉丝 ', isNew: false, window: '' },
+                    { name: ' 丝瓜炒鸡蛋 ', isNew: false, window: '' },
+                    { name: ' 香辣猪脆骨 ', isNew: false, window: '' },
+                    { name: ' 米粉蒸排骨 ', isNew: false, window: '' },
+                    { name: ' 冬瓜汆丸子 ', isNew: false, window: '' },
+                    { name: ' 扣腕小酥肉 ', isNew: true, window: '' },
+                    { name: ' 水煮肉片 ', isNew: true, window: '' },
+                    { name: ' 藤椒鸡腿肉 ', isNew: false, window: '' },
+                    { name: ' 辣子鸡 ', isNew: false, window: '' },
+                    { name: ' 西红柿鸡蛋面 ', isNew: false, window: '' },
+                    { name: ' 牛肉汤面 ', isNew: true, window: '' },
+                    { name: ' 麻酱鸡丝面 ', isNew: false, window: '' },
+                    { name: ' 牛腩面 ', isNew: false, window: '' },
+                    { name: ' 羊肉烩面 ', isNew: false, window: '' },
+                    { name: ' 扣碗丸子 ', isNew: true, window: '' },
+                    { name: ' 鱼香肉丝 ', isNew: false, window: '' },
+                    { name: ' 尖椒肉丝 ', isNew: false, window: '' },
+                    { name: ' 土豆牛腩 ', isNew: false, window: '' },
+                    { name: ' 杭椒牛柳 ', isNew: false, window: '' },
+                    { name: ' 剁椒鱼块 ', isNew: false, window: '' },
+                    { name: ' 滑蛋虾仁 ', isNew: false, window: '' },
+                    { name: ' 红烧罗飞鱼 ', isNew: false, window: '' },
+                    { name: ' 麻辣鸡翅 ', isNew: false, window: '' },
+                    { name: ' 孜然羊肉 ', isNew: true, window: '' },
+                    { name: ' 小炒鸡 ', isNew: false, window: '' },
+                    { name: ' 豇豆肉丝 ', isNew: false, window: '' },
+                    { name: ' 西红柿鸡蛋 ', isNew: false, window: '' },
+                    { name: ' 肉炒菜花 ', isNew: false, window: '' },
+                    { name: ' 干锅鸡爪 ', isNew: true, window: '' },
+                    { name: ' 麻婆豆腐 ', isNew: false, window: '' },
+                    { name: ' 豆腐蒸蛋 ', isNew: false, window: '' },
+                    { name: ' 鸡蛋糕 ', isNew: false, window: '' },
+                    { name: ' 滑蛋鸡丁 ', isNew: false, window: '' },
+                    { name: ' 芹菜肉片 ', isNew: false, window: '' },
+                    { name: ' 青花椒炒鸡 ', isNew: true, window: '' },
+                    { name: ' 排骨玉米汤 ', isNew: true, window: '' },
+                    { name: ' 炝炒豆芽 ', isNew: false, window: '' },
+                    { name: ' 炝炒白菜 ', isNew: false, window: '' },
+                    { name: ' 白菜木耳 ', isNew: false, window: '' },
+                    { name: ' 土豆丝 ', isNew: false, window: '' },
+                    { name: ' 香菇油菜 ', isNew: false, window: '' },
+                    { name: ' 蒜苔肉丝 ', isNew: false, window: '' },
+                    { name: ' 五彩鸡片 ', isNew: false, window: '' },
+                    { name: ' 椒麻巴沙鱼 ', isNew: true, window: '' },
+                    { name: ' 小碗干香菇蒸鸡 ', isNew: true, window: '' },
+                    { name: ' 炝炒圆白菜 ', isNew: false, window: '' },
+                    { name: ' 蒜蓉娃娃菜 ', isNew: false, window: '' },
+                    { name: ' 小碗酸菜鱼 ', isNew: false, window: '' },
+                    { name: ' 清炒小油菜 ', isNew: false, window: '' },
+                    { name: ' 醋溜白菜 ', isNew: false, window: '' },
+                    { name: ' 干炸海鲜菇 ', isNew: true, window: '' },
+                    { name: ' 水煮肉片 ', isNew: false, window: '' },
+                    { name: ' 洋葱木耳炒肉 ', isNew: true, window: '' },
+                    { name: ' 肉炒平菇 ', isNew: false, window: '' },
+                    { name: ' 馒头 ', isNew: false, window: '' },
+                    { name: ' 米饭 ', isNew: false, window: '' },
+                    { name: ' 大虾套餐 ', isNew: false, window: '' },
+                    { name: ' 酱牛肉套餐 ', isNew: true, window: '' },
+                    { name: ' 鸡蛋糕套餐 ', isNew: false, window: '' },
+                    { name: ' 鸡肉套餐 ', isNew: false, window: '' },
+                    { name: ' 酱肘子套餐 ', isNew: false, window: '' },
+                    { name: ' 巴沙鱼套餐 ', isNew: true, window: '' }
+                ]
+            }
+        ];
+
+        var selectedCanteen = 0;
+
+        function init() {
+            renderCanteenTabs();
+            renderContent();
+        }
+
+        function renderCanteenTabs() {
+            var tabsContainer = document.getElementById('canteenTabs');
+            tabsContainer.innerHTML = '';
+
+            for (var i = 0; i < canteens.length; i++) {
+                var canteen = canteens[i];
+                var tab = document.createElement('button');
+                tab.className = 'canteen-tab';
+                if (i === selectedCanteen) {
+                    tab.className += ' active';
+                }
+                tab.textContent = canteen.name;
+                tab.setAttribute('data-index', i);
+                tab.onclick = function () {
+                    selectedCanteen = parseInt(this.getAttribute('data-index'));
+                    renderCanteenTabs();
+                    renderContent();
+                };
+                tabsContainer.appendChild(tab);
+            }
+        }
+
+        function renderContent() {
+            var canteen = canteens[selectedCanteen];
+
+            var hoursGrid = document.getElementById('hoursGrid');
+            hoursGrid.innerHTML =
+                '<div class="hour-card">' +
+                '<div class="hour-label">🌅 早餐</div>' +
+                '<div class="hour-time">' + canteen.hours.breakfast + '</div>' +
+                '</div>' +
+                '<div class="hour-card">' +
+                '<div class="hour-label">☀️ 午餐</div>' +
+                '<div class="hour-time">' + canteen.hours.lunch + '</div>' +
+                '</div>' +
+                '<div class="hour-card">' +
+                '<div class="hour-label">🌙 晚餐</div>' +
+                '<div class="hour-time">' + canteen.hours.dinner.replace(/\n/g, '<br>') + '</div>' +
+                '</div>';
+
+            var dishesGrid = document.getElementById('dishesGrid');
+            dishesGrid.innerHTML = '';
+
+            for (var j = 0; j < canteen.dishes.length; j++) {
+                var dish = canteen.dishes[j];
+                var dishCard = document.createElement('div');
+                dishCard.className = 'dish-card';
+
+                var newBadgeHtml = '';
+                if (dish.isNew) {
+                    newBadgeHtml = '<div class="new-badge"><span class="sparkle">✨</span>新品</div>';
+                }
+                if (dish.window) {
+                    dishCard.innerHTML = newBadgeHtml +
+                        '<div class="dish-icon">🍽️</div>' +
+                        '<div class="dish-name">' + dish.name + '</div>' +
+                        '<div class="dish-window">' + dish.window + '</div>';
+                } else {
+                    dishCard.innerHTML = newBadgeHtml +
+                        '<div class="dish-icon">🍽️</div>' +
+                        '<div class="dish-name">' + dish.name + '</div>';
+                }
+                dishesGrid.appendChild(dishCard);
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
